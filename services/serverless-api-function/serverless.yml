@@ -1,0 +1,38 @@
+service: serverless-api-function
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'} 
+  stage: ${opt:stage, 'dev'} 
+	
+# package:
+#   patterns:
+#     - 'node_modules/**'
+
+custom:
+  base: ${self:service}-${self:provider.stage}
+  webpack:
+    webpackIncludeModules: true
+
+functions:
+  singleFunctionApi:
+    handler: src/handlers/index.handler
+    name: ${self:custom.base}
+    memorySize: 512
+    timeout: 60
+    url:
+      cors:
+        allowedOrigins: 
+          - "*"
+        allowedHeaders:
+          - Content-Type
+          - Authorization
+        allowedMethods:
+          - GET
+          - POST
+        allowCredentials: false
+        exposedResponseHeaders:
+          - Access-Control-Allow-Headers
+        maxAge: 3000
