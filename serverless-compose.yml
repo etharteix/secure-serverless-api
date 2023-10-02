@@ -1,0 +1,3 @@
+services:
+  serverless-api-function:
+    path: services/serverless-api-function
