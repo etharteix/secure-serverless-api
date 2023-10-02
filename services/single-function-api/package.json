@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "serverless-plugin-include-dependencies": "^5.1.0"
+  }
+}

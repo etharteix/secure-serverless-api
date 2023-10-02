@@ -1,0 +1,16 @@
+service: cloudfront-lambda-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'} 
+  stage: ${opt:stage, 'dev'} 
+
+plugins:
+  - serverless-plugin-common-excludes
+  - serverless-plugin-include-dependencies
+
+functions:
+  singleFunctionApi:
+    handler: index.handler
