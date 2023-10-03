@@ -6,15 +6,9 @@ provider:
   runtime: nodejs18.x
   region: ${opt:region, 'us-east-1'} 
   stage: ${opt:stage, 'dev'} 
-	
-# package:
-#   patterns:
-#     - 'node_modules/**'
 
 custom:
   base: ${self:service}-${self:provider.stage}
-  webpack:
-    webpackIncludeModules: true
 
 functions:
   singleFunctionApi:
@@ -35,4 +29,4 @@ functions:
         allowCredentials: false
         exposedResponseHeaders:
           - Access-Control-Allow-Headers
-        maxAge: 3000
+        maxAge: 0
