@@ -1,3 +1,11 @@
 services:
-  serverless-api-function:
-    path: services/serverless-api-function
+  cloudfront-api-policies:
+    path: resources/cloudfront
+
+  cloudfront-api:
+    path: services/cloudfront-api
+    dependsOn: cloudfront-api-policies
+    params:
+      cachePolicyId: ${cloudfront-api-policies.cachePolicyId}
+      originRequestPolicyId: ${cloudfront-api-policies.originRequestPolicyId}
+      responseHeadersPolicyId: ${cloudfront-api-policies.responseHeadersPolicyId}
