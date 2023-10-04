@@ -51,25 +51,23 @@ resources:
               AccessControlAllowCredentials: false
               AccessControlAllowHeaders: 
                 Items:
-                  - "*"
+                  - '*'
               AccessControlAllowMethods: 
                 Items:
                   - ALL
               AccessControlAllowOrigins:
                 Items:
-                  - "*"
+                  - '*'
               AccessControlExposeHeaders:
                 Items:
-                  - "*"
+                  - '*'
               AccessControlMaxAgeSec: 6000
-              OriginOverride: false
+              OriginOverride: true
   
   Outputs:
     cachePolicyId:
       Value: !Ref CachePolicy
-
     originRequestPolicyId:
       Value: !Ref OriginRequestPolicy
-
     responseHeadersPolicyId:
       Value: !Ref ResponseHeadersPolicy

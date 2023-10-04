@@ -5,14 +5,14 @@ provider:
   name: aws
   runtime: nodejs18.x
   region: ${opt:region, 'us-east-1'} 
-  stage: ${opt:stage, 'dev'} 
+  stage: ${opt:stage, 'dev'}
 
 custom:
   base: ${self:service}-${self:provider.stage}
   apiKey: ${param:apiKey, 'cloudfront-1234567890'}
 
 functions:
-  cloudfrontApiFunction:
+  cloudfrontApi:
     handler: src/handlers/index.handler
     name: ${self:custom.base}-function
     memorySize: 512
@@ -66,7 +66,7 @@ resources:
             ViewerProtocolPolicy: https-only
           Origins:
             - Id: lambda-origin
-              DomainName: !Select [2, !Split ["/", !GetAtt CloudfrontApiFunctionLambdaFunctionUrl.FunctionUrl]]
+              DomainName: !Select [2, !Split ["/", !GetAtt CloudfrontApiLambdaFunctionUrl.FunctionUrl]]
               CustomOriginConfig: 
                 OriginProtocolPolicy: https-only
                 OriginSSLProtocols:
