@@ -9,7 +9,7 @@ provider:
 
 custom:
   base: ${self:service}-${self:provider.stage}
-  apiKey: 'NfeukN7ug8Plu4e6'
+  apiKey: ${param:apiKey, 'cloudfront-1234567890'}
 
 functions:
   cloudfrontApiFunction:
@@ -22,7 +22,7 @@ functions:
     url:
       cors:
         allowedOrigins: 
-          - "*"
+          - '*'
         allowedHeaders:
           - Content-Type
           - Authorization
@@ -78,3 +78,9 @@ resources:
               # OriginShield:
               #   Enabled: true
               #   OriginShieldRegion: ${self:provider.region}
+
+  Outputs:
+    CloudfrontApiUrl:
+      Value: !Sub
+        - 'https://${DomainName}/'
+        - DomainName: !GetAtt CloudfrontApiDistribution.DomainName
