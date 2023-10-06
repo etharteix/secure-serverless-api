@@ -1,0 +1,86 @@
+service: cloudfront-api
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'} 
+  stage: ${opt:stage, 'dev'}
+
+custom:
+  base: ${self:service}-${self:provider.stage}
+  apiKey: ${param:apiKey, 'cloudfront-1234567890'}
+
+functions:
+  cloudfrontApi:
+    handler: src/handlers/index.handler
+    name: ${self:custom.base}-function
+    memorySize: 512 # Memory size default value
+    timeout: 60 # Maximum timeout from CloudFront
+    environment:
+      API_KEY: ${self:custom.apiKey}
+    url: # Enabling Lambda Function URL
+      cors: # CORS settings
+        allowedOrigins: # Add your allowed origins in here
+          - https://serverlessguru.com
+        allowedHeaders: # Add your allowed headers in here
+          - Content-Type
+          - Authorization
+        allowedMethods: # Add your allowed methods in here
+          - GET
+          - POST
+        allowCredentials: false # Change to true to allow cookies
+        exposedResponseHeaders: # Add non-CORS-safelisted headers
+          - X-Custom-Header 
+        maxAge: 0 # Preflight response cache default value
+
+resources:
+  Resources:
+    CloudfrontApiDistribution:
+      Type: AWS::CloudFront::Distribution
+      Properties: 
+        DistributionConfig:
+          Comment: ${self:custom.base}-distribution
+          Enabled: true
+          PriceClass: PriceClass_100
+          HttpVersion: http2and3
+          DefaultCacheBehavior:
+            AllowedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+              - PUT
+              - PATCH
+              - POST
+              - DELETE
+            CachedMethods:
+              - GET
+              - HEAD
+              - OPTIONS
+            CachePolicyId: ${param:cachePolicyId}
+            OriginRequestPolicyId: ${param:originRequestPolicyId}
+            ResponseHeadersPolicyId: ${param:responseHeadersPolicyId}
+            Compress: false
+            SmoothStreaming: false
+            TargetOriginId: lambda-origin
+            ViewerProtocolPolicy: https-only
+          Origins:
+            - Id: lambda-origin
+              DomainName: !Select [2, !Split ["/", !GetAtt CloudfrontApiLambdaFunctionUrl.FunctionUrl]]
+              CustomOriginConfig: 
+                OriginProtocolPolicy: https-only
+                OriginSSLProtocols:
+                  - TLSv1.2
+                OriginReadTimeout: 60
+              OriginCustomHeaders:
+                - HeaderName: x-api-key
+                  HeaderValue: ${self:custom.apiKey}
+              # OriginShield:
+              #   Enabled: true
+              #   OriginShieldRegion: ${self:provider.region}
+
+  Outputs:
+    CloudfrontApiUrl:
+      Value: !Sub
+        - 'https://${DomainName}/'
+        - DomainName: !GetAtt CloudfrontApiDistribution.DomainName
