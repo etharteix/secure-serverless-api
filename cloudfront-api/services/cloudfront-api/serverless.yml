@@ -9,7 +9,6 @@ provider:
 
 custom:
   base: ${self:service}-${self:provider.stage}
-  apiKey: ${param:apiKey, 'cloudfront-1234567890'}
 
 functions:
   cloudfrontApi:
@@ -17,8 +16,6 @@ functions:
     name: ${self:custom.base}-function
     memorySize: 512 # Memory size default value
     timeout: 60 # Maximum timeout from CloudFront
-    environment:
-      API_KEY: ${self:custom.apiKey}
     url: # Enabling Lambda Function URL
       cors: # CORS settings
         allowedOrigins: # Add your allowed origins in here
@@ -42,10 +39,10 @@ resources:
         DistributionConfig:
           Comment: ${self:custom.base}-distribution
           Enabled: true
-          PriceClass: PriceClass_100
-          HttpVersion: http2and3
+          PriceClass: PriceClass_100 # North America, Europe and Israel
+          HttpVersion: http2and3 # Accepting all HTTP versions
           DefaultCacheBehavior:
-            AllowedMethods:
+            AllowedMethods: # Restricting methods on Lambda Function and not here
               - GET
               - HEAD
               - OPTIONS
@@ -53,30 +50,27 @@ resources:
               - PATCH
               - POST
               - DELETE
-            CachedMethods:
+            CachedMethods: # Caching all possible methods
               - GET
               - HEAD
               - OPTIONS
-            CachePolicyId: ${param:cachePolicyId}
-            OriginRequestPolicyId: ${param:originRequestPolicyId}
-            ResponseHeadersPolicyId: ${param:responseHeadersPolicyId}
-            Compress: false
-            SmoothStreaming: false
-            TargetOriginId: lambda-origin
-            ViewerProtocolPolicy: https-only
+            CachePolicyId: ${param:cachePolicyId} # Created CloudFront Policy
+            OriginRequestPolicyId: ${param:originRequestPolicyId} # Created CloudFront Policy
+            ResponseHeadersPolicyId: ${param:responseHeadersPolicyId} # Created CloudFront Policy
+            Compress: false # Not compressing files
+            SmoothStreaming: false # Not working with media files
+            TargetOriginId: lambda-origin # Referencing the created Origin below
+            ViewerProtocolPolicy: https-only # Restricting to HTTPS communication only
           Origins:
-            - Id: lambda-origin
+            - Id: lambda-origin # Lambda Function URL custom origin
               DomainName: !Select [2, !Split ["/", !GetAtt CloudfrontApiLambdaFunctionUrl.FunctionUrl]]
               CustomOriginConfig: 
-                OriginProtocolPolicy: https-only
+                OriginProtocolPolicy: https-only # Restricting to HTTPS communication only
                 OriginSSLProtocols:
-                  - TLSv1.2
-                OriginReadTimeout: 60
-              OriginCustomHeaders:
-                - HeaderName: x-api-key
-                  HeaderValue: ${self:custom.apiKey}
+                  - TLSv1.2 # Using minimum TLSv1.2 protocol
+                OriginReadTimeout: 60 # CloudFront maximum accepted origin timeout
               # OriginShield:
-              #   Enabled: true
+              #   Enabled: true # Enabling the AWS Shield usage on the CloudFront distribution
               #   OriginShieldRegion: ${self:provider.region}
 
   Outputs:
