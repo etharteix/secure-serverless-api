@@ -16,17 +16,17 @@ resources:
       Properties: 
         CachePolicyConfig:
           Name: ${self:custom.base}-cache
-          MinTTL: 0
-          DefaultTTL: 30
-          MaxTTL: 60
+          MinTTL: 0 # Add your minimum cache expiration time in seconds
+          DefaultTTL: 30 # Add your default cache expiration time in seconds
+          MaxTTL: 60 # Add your maximum cache expiration time in seconds
           ParametersInCacheKeyAndForwardedToOrigin:
-            EnableAcceptEncodingGzip: false
+            EnableAcceptEncodingGzip: false # Not working with Gzip compression
             CookiesConfig:
-              CookieBehavior: none
+              CookieBehavior: none # Not caching cookies
             HeadersConfig:
-              HeaderBehavior: none
+              HeaderBehavior: none # Not caching headers
             QueryStringsConfig: 
-              QueryStringBehavior: none
+              QueryStringBehavior: all # Caching all query strings
 
     OriginRequestPolicy:
       Type: AWS::CloudFront::OriginRequestPolicy
@@ -34,35 +34,35 @@ resources:
         OriginRequestPolicyConfig:
           Name: ${self:custom.base}-origin
           CookiesConfig:
-            CookieBehavior: all
+            CookieBehavior: all # Passing all cookies to Lambda Function
           HeadersConfig:
             HeaderBehavior: allExcept
             Headers:
-              - Host
+              - Host  # Passing all headers except "Host" to Lambda Function
           QueryStringsConfig:
-            QueryStringBehavior: all
+            QueryStringBehavior: all # Passing all query strings to Lambda Function
     
     ResponseHeadersPolicy:
       Type: AWS::CloudFront::ResponseHeadersPolicy
       Properties: 
         ResponseHeadersPolicyConfig:
           Name: ${self:custom.base}-response
-          CorsConfig:
-              AccessControlAllowCredentials: false
+          CorsConfig: # Default CORS config for the API
+              AccessControlAllowCredentials: false # Change to true to allow cookies
               AccessControlAllowHeaders: 
-                Items:
+                Items: # Add your allowed headers in here
                   - '*'
               AccessControlAllowMethods: 
-                Items:
+                Items: # Add your allowed methods in here
                   - ALL
               AccessControlAllowOrigins:
-                Items:
+                Items: # Add your allowed origins in here
                   - '*'
               AccessControlExposeHeaders:
-                Items:
+                Items: # Add your non-CORS-safelisted headers in here
                   - '*'
-              AccessControlMaxAgeSec: 6000
-              OriginOverride: true
+              AccessControlMaxAgeSec: 6000 # Preflight response cache expiration time
+              OriginOverride: false # Change to true to override Lambda CORS settings
   
   Outputs:
     cachePolicyId:
