@@ -2,10 +2,16 @@ services:
   cloudfront-api-policies: # CloudFront Policies stack
     path: resources/cloudfront
 
+  cloudfront-api-waf: # WAF stack
+    path: resources/waf
+
   cloudfront-api: # Lambda Function and CloudFront Distribution stack
     path: services/cloudfront-api
-    dependsOn: cloudfront-api-policies # Wait for this service to be deployed
+    dependsOn: # Wait for these services to be deployed
+      - cloudfront-api-policies
+      - cloudfront-api-waf
     params: # Add the CloudFront Policies outputs as parameters
       cachePolicyId: ${cloudfront-api-policies.cachePolicyId}
       originRequestPolicyId: ${cloudfront-api-policies.originRequestPolicyId}
       responseHeadersPolicyId: ${cloudfront-api-policies.responseHeadersPolicyId}
+      wafWebAclArn: ${cloudfront-api-waf.wafWebAclArn}

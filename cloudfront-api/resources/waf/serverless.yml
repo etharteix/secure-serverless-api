@@ -1,0 +1,41 @@
+service: cloudfront-api-waf
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  region: 'us-east-1'
+  stage: ${opt:stage, 'dev'} 
+
+custom:
+  base: ${self:service}-${self:provider.stage}
+
+resources:
+  Resources:
+    WAFWebACL:
+      Type: AWS::WAFv2::WebACL
+      Properties: 
+        Name: ${self:custom.base}
+        Scope: CLOUDFRONT
+        VisibilityConfig:
+          MetricName: ${self:custom.base}
+          CloudWatchMetricsEnabled: true
+          SampledRequestsEnabled: true
+        DefaultAction:
+          Allow: {}
+        Rules:
+          - Name: AWS-AWSManagedRulesAmazonIpReputationList
+            Priority: 0
+            Statement:
+              ManagedRuleGroupStatement:
+                VendorName: AWS
+                Name: AWSManagedRulesAmazonIpReputationList
+            OverrideAction:
+              None: {}
+            VisibilityConfig:
+              MetricName: ${self:custom.base}-AmazonIpReputationList
+              CloudWatchMetricsEnabled: true
+              SampledRequestsEnabled: true
+
+  Outputs:
+    wafWebAclArn:
+      Value: !GetAtt WAFWebACL.Arn

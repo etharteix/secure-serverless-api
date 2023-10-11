@@ -69,9 +69,10 @@ resources:
                 OriginSSLProtocols:
                   - TLSv1.2 # Using minimum TLSv1.2 protocol
                 OriginReadTimeout: 60 # CloudFront maximum accepted origin timeout
-              # OriginShield:
-              #   Enabled: true # Enabling the AWS Shield usage on the CloudFront distribution
-              #   OriginShieldRegion: ${self:provider.region}
+              OriginShield:
+                Enabled: true # Enabling the AWS Shield usage on the CloudFront distribution
+                OriginShieldRegion: ${self:provider.region}
+          WebACLId: ${param:wafWebAclArn}
 
   Outputs:
     CloudfrontApiUrl:
