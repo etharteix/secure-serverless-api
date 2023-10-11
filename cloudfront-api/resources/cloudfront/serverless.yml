@@ -51,17 +51,16 @@ resources:
               AccessControlAllowCredentials: false # Change to true to allow cookies
               AccessControlAllowHeaders: 
                 Items: # Add your allowed headers in here
-                  - '*'
+                  - Content-Type
               AccessControlAllowMethods: 
                 Items: # Add your allowed methods in here
-                  - ALL
-              AccessControlAllowOrigins:
+                  - OPTIONS
+                  - HEAD
+              AccessControlAllowOrigins: 
                 Items: # Add your allowed origins in here
-                  - '*'
-              AccessControlExposeHeaders:
-                Items: # Add your non-CORS-safelisted headers in here
-                  - '*'
-              AccessControlMaxAgeSec: 6000 # Preflight response cache expiration time
+                  - '*.serverlessguru.com'
+              AccessControlExposeHeaders: null # Add your non-CORS-safelisted headers
+              AccessControlMaxAgeSec: 0 # Preflight response cache expiration time
               OriginOverride: false # Change to true to override Lambda CORS settings
   
   Outputs:
