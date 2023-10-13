@@ -72,7 +72,7 @@ resources:
               OriginShield:
                 Enabled: true # Enabling the AWS Shield usage on the CloudFront distribution
                 OriginShieldRegion: ${self:provider.region}
-          WebACLId: ${param:wafWebAclArn}
+          WebACLId: ${param:wafWebAclArn} # Created AWS WAF Web ACL
 
   Outputs:
     CloudfrontApiUrl:
