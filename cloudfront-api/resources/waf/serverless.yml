@@ -3,7 +3,7 @@ frameworkVersion: '3'
 
 provider:
   name: aws
-  region: 'us-east-1'
+  region: 'us-east-1' # Mandatory region for WAF with CloudFront
   stage: ${opt:stage, 'dev'} 
 
 custom:
@@ -15,23 +15,23 @@ resources:
       Type: AWS::WAFv2::WebACL
       Properties: 
         Name: ${self:custom.base}
-        Scope: CLOUDFRONT
-        VisibilityConfig:
+        Scope: CLOUDFRONT # Set for CloudFront distribution
+        VisibilityConfig: # Metrics for default action
           MetricName: ${self:custom.base}
           CloudWatchMetricsEnabled: true
           SampledRequestsEnabled: true
         DefaultAction:
-          Allow: {}
-        Rules:
+          Allow: {} # Allow the request if it doesn't match a rule
+        Rules: # Add your WebACL rules in here
           - Name: AWS-AWSManagedRulesAmazonIpReputationList
             Priority: 0
-            Statement:
+            Statement: # Using an AWS managed rule group
               ManagedRuleGroupStatement:
                 VendorName: AWS
                 Name: AWSManagedRulesAmazonIpReputationList
             OverrideAction:
               None: {}
-            VisibilityConfig:
+            VisibilityConfig: # Metrics for this rule group
               MetricName: ${self:custom.base}-AmazonIpReputationList
               CloudWatchMetricsEnabled: true
               SampledRequestsEnabled: true
